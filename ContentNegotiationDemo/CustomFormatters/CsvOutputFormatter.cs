@@ -1,4 +1,5 @@
 ﻿using ContentNegotiationDemo.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
 using System;
@@ -27,16 +28,16 @@ namespace ContentNegotiationDemo.CustomFormatters
             return false;
         }
 
-        public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
+        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
             var response = context.HttpContext.Response;
             var buffer = new StringBuilder();
 
             if (context.Object is IEnumerable<Blog>)
             {
-                foreach (var Blog in (IEnumerable<Blog>)context.Object)
+                foreach (var blog in (IEnumerable<Blog>)context.Object)
                 {
-                    FormatCsv(buffer, Blog);
+                    FormatCsv(buffer, blog);
                 }
             }
             else
@@ -44,10 +45,7 @@ namespace ContentNegotiationDemo.CustomFormatters
                 FormatCsv(buffer, (Blog)context.Object);
             }
 
-            using (var writer = context.WriterFactory(response.Body, selectedEncoding))
-            {
-                return writer.WriteAsync(buffer.ToString());
-            }
+            await response.WriteAsync(buffer.ToString());
         }
 
         private static void FormatCsv(StringBuilder buffer, Blog blog)
@@ -57,5 +55,6 @@ namespace ContentNegotiationDemo.CustomFormatters
                 buffer.AppendLine($"{blog.Name},\"{blog.Description},\"{blogPost.Title},\"{blogPost.Published}\"");
             }
         }
+
     }
 }
