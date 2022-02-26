@@ -12,7 +12,7 @@ builder.Services.AddControllers(options =>
 {
     options.RespectBrowserAcceptHeader = true;
     options.ReturnHttpNotAcceptable = true;
-}).AddXmlDataContractSerializerFormatters()
+}).AddXmlSerializerFormatters()
   .AddMvcOptions(options => options.OutputFormatters.Add(new CsvOutputFormatter()));
 
 var app = builder.Build();
